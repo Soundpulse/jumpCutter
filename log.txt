@@ -1,0 +1,25 @@
+frame:84   pts:86016   pts_time:1.95048
+lavfi.silence_start=1.45537
+frame:104  pts:106496  pts_time:2.41488
+lavfi.silence_end=2.41794
+lavfi.silence_duration=0.962562
+frame:190  pts:194560  pts_time:4.41179
+lavfi.silence_start=3.92406
+frame:240  pts:245760  pts_time:5.57279
+lavfi.silence_end=5.59263
+lavfi.silence_duration=1.66857
+frame:350  pts:358400  pts_time:8.12698
+lavfi.silence_start=7.64197
+frame:357  pts:365568  pts_time:8.28952
+lavfi.silence_end=8.29118
+lavfi.silence_duration=0.649206
+frame:408  pts:417792  pts_time:9.47374
+lavfi.silence_start=8.99549
+frame:429  pts:439296  pts_time:9.96136
+lavfi.silence_end=9.97302
+lavfi.silence_duration=0.977528
+frame:531  pts:543744  pts_time:12.3298
+lavfi.silence_start=11.8411
+frame:594  pts:608256  pts_time:13.7927
+lavfi.silence_end=13.8099
+lavfi.silence_duration=1.96887
