@@ -1,10 +1,9 @@
 # jumpCutter
 
+Re-done carykh's jumpcutter using high-level python libraries.
 
-##TODO:
+Has similar efficency to carykh's jumpcutter, but a huge improvement could be made if I could improve the R/W process.
 
-Clean up code for phase vocoder
+## Requirements
 
-Increase efficency
-
-Use less libraries
+audiotsm, pydub, moviepy
