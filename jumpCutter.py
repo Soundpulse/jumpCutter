@@ -5,26 +5,29 @@ from audiotsm import phasevocoder
 from audiotsm.io.wav import WavReader, WavWriter
 import shutil
 import os
+import time
 
 # 0. ARGUMENTS
 
-SILENT_THRESHOLD = -50
-SOUNDED_SPEED = 2
-SILENT_SPEED = 8
+SILENT_THRESHOLD = -55
+SOUNDED_SPEED = 1.2
+SILENT_SPEED = 5
 MIN_SILENCE_LENGTH = 1000
-
 
 # 1. Change mp4 into audio
 currentPath = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
-extension_list = ('.mp4')
+inputPath = os.path.join(currentPath, "input")
+outputPath = os.path.join(currentPath, "output")
 
-for video in os.listdir(currentPath):
+extension_list = ('.mp4', '.avi', '.mkv', '.mov', '.webm', '.ogg')
+
+tik = time.time()
+for video in os.listdir(inputPath):
     if video.lower().endswith(extension_list):
-        video_path = currentPath + "\\" + video
+        video_path = os.path.join(inputPath, video)
+        print("Reading File: " + video_path)
         audio = AudioSegment.from_file(video_path, "mp4")
-        clip = VideoFileClip(video_path)
-
-        rate = audio.frame_rate
+        clip = VideoFileClip(video_path, audio=False)
 
         time_start = 0
         time_end = audio.duration_seconds
@@ -42,7 +45,13 @@ for video in os.listdir(currentPath):
         chunks.sort()
 
         clips = []
-        os.mkdir(currentPath + "\\temp")
+        # Clean temp
+        tempPath = os.path.join(currentPath, "temp")
+        if(os.path.isdir(tempPath)):
+            shutil.rmtree(tempPath)
+        else:
+            os.mkdir(tempPath)
+
         i = 0
         for i_start, i_end, silence in chunks:
             i += 1
@@ -53,12 +62,10 @@ for video in os.listdir(currentPath):
 
             sub_clip = clip.subclip(i_start/1000, i_end/1000)
 
-            sub_clip.write_videofile(currentPath + "\\temp\\sub_clip{0}.mp4".format(i))
-            AudioSegment.from_file(currentPath + "\\temp\\sub_clip{0}.mp4".format(i)
-                                   ).export(currentPath + "\\temp\\sub_clip{0}.wav".format(i), format='wav')
+            audio[i_start:i_end].export(os.path.join(tempPath, "sub_clip.wav"), format='wav')
 
-            src = currentPath + "\\temp\\sub_clip{0}.wav".format(i)
-            out = currentPath + "\\temp\\sub_clip-reg{0}.wav".format(i)
+            src = os.path.join(tempPath, "sub_clip.wav")
+            out = os.path.join(tempPath, "sub_clip-reg{0}.wav".format(i))
             with WavReader(src) as reader:
                 with WavWriter(out, reader.channels, reader.samplerate) as writer:
                     tsm = phasevocoder(reader.channels, speed=speed)
@@ -66,12 +73,17 @@ for video in os.listdir(currentPath):
 
             sub_clip = sub_clip.fx(vfx.speedx, speed)
             sub_clip = sub_clip.set_audio(AudioFileClip(out))
-            sub_clip.write_videofile(currentPath + "\\temp\\sub_clip-reg{0}.mp4".format(i))
-
             clips.append(sub_clip)
+            if i % 5 == 0:
+                print("Modifying Chunks: " + str(round((i / len(chunks) * 100), 2)) + "% Complete.")
 
         output_clip = concatenate_videoclips(clips)
-        output_clip.write_videofile(currentPath + "\\output.mp4")
+        output_clip.write_videofile(os.path.join(outputPath, video))
+        print("Success!")
+        print("Output is stored in: " + os.path.join(outputPath, video))
 
         # DANGEROUS
-        shutil.rmtree(currentPath + "\\temp")
+        shutil.rmtree(tempPath)
+
+tok = time.time()
+print("Took " + str(tok - tik) + " seconds.")
