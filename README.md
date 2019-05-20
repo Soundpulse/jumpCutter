@@ -3,4 +3,8 @@
 
 ##TODO:
 
-Work on the phase vocoder (FORMULA NEEDED!)
+Clean up code for phase vocoder
+
+Increase efficency
+
+Use less libraries
