@@ -8,13 +8,11 @@ import os
 import time
 
 # 0. ARGUMENTS
+SILENT_THRESHOLD = int(input("Enter the threshold for silence: (Default: -50) ") or "-50")
+SOUNDED_SPEED = int(input("Sounded chunks multiplier: (Default: 1x) ") or "1")
+SILENT_SPEED = int(input("Silent chunks multiplier: (Default: 1x) ") or "1")
+MIN_SILENCE_LENGTH = int(input("Minimum length in miliseconds of each silent chunk: (Default: 1000ms) ") or "1000")
 
-SILENT_THRESHOLD = -55
-SOUNDED_SPEED = 1.2
-SILENT_SPEED = 10
-MIN_SILENCE_LENGTH = 1000
-
-# 1. Change mp4 into audio
 currentPath = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
 inputPath = os.path.join(currentPath, "input")
 outputPath = os.path.join(currentPath, "output")
@@ -32,6 +30,7 @@ for video in os.listdir(inputPath):
         print("Reading Video...")
         clip = VideoFileClip(video_path, audio=False)
 
+        # Detect Silence
         time_start = 0
         time_end = audio.duration_seconds
         silent_chunks = detect_silence(audio, silence_thresh=SILENT_THRESHOLD,  min_silence_len=MIN_SILENCE_LENGTH)
@@ -55,6 +54,7 @@ for video in os.listdir(inputPath):
         else:
             os.mkdir(tempPath)
 
+        # Use phase vocoder to keep pitch
         i = 0
         for i_start, i_end, silence in chunks:
             i += 1
@@ -86,7 +86,7 @@ for video in os.listdir(inputPath):
         print("Success!")
         print("Output is stored in: " + os.path.join(outputPath, video))
 
-        # DANGEROUS
+        # DANGEROUS!!
         shutil.rmtree(tempPath)
         tok = time.time()
         print("Took " + str(tok - tik) + " seconds.")
